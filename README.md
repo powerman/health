@@ -4,7 +4,6 @@
 [![Go version](https://img.shields.io/github/go-mod/go-version/powerman/health?color=blue)](https://go.dev/)
 [![Test](https://img.shields.io/github/actions/workflow/status/powerman/health/test.yml?label=test)](https://github.com/powerman/health/actions/workflows/test.yml)
 [![Coverage Status](https://raw.githubusercontent.com/powerman/health/gh-badges/coverage.svg)](https://github.com/powerman/health/actions/workflows/test.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/powerman/health)](https://goreportcard.com/report/github.com/powerman/health)
 [![Release](https://img.shields.io/github/v/release/powerman/health?color=blue)](https://github.com/powerman/health/releases/latest)
 [![Go Reference](https://pkg.go.dev/badge/github.com/powerman/health.svg)](https://pkg.go.dev/github.com/powerman/health)
 
