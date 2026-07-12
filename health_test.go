@@ -169,7 +169,7 @@ func TestStateWatchUnknownName(t *testing.T) {
 		t := check.Must(tt)
 
 		s := &health.State{}
-		ctx, cancel := context.WithCancel(tt.Context())
+		ctx, cancel := context.WithCancel(t.Context())
 
 		ch := s.Provider().Health().Watch(ctx, "unknown")
 		st := <-ch
@@ -214,7 +214,7 @@ func TestWatchEmptyContext(t *testing.T) {
 		s := &health.State{}
 		s.SetServingStatus(health.Serving)
 
-		ctx, cancel := context.WithCancel(tt.Context())
+		ctx, cancel := context.WithCancel(t.Context())
 		cancel()
 
 		ch := s.Provider().Health().Watch(ctx, health.Overall)
@@ -346,7 +346,7 @@ func TestStatesWatchUnknownName(t *testing.T) {
 
 		s := health.NewStates("db")
 		v := s.Provider()
-		ctx, cancel := context.WithCancel(tt.Context())
+		ctx, cancel := context.WithCancel(t.Context())
 
 		ch := v.Health().Watch(ctx, "unknown")
 		st := <-ch
@@ -742,7 +742,7 @@ func TestStateWatchStaysOpenAfterClose(t *testing.T) {
 
 		s := &health.State{}
 		s.SetServingStatus(health.Serving)
-		ctx, cancel := context.WithCancel(tt.Context())
+		ctx, cancel := context.WithCancel(t.Context())
 
 		ch := s.Provider().Health().Watch(ctx, health.Overall)
 		st := <-ch
@@ -778,7 +778,7 @@ func TestStatesWatchStaysOpenAfterClose(t *testing.T) {
 
 		s := health.NewStates("a")
 		s.SetServingStatus("a", health.Serving)
-		ctx, cancel := context.WithCancel(tt.Context())
+		ctx, cancel := context.WithCancel(t.Context())
 
 		ch := s.Provider().Health().Watch(ctx, health.Overall)
 		st := <-ch
@@ -992,7 +992,7 @@ func TestWaitSettledServing(t *testing.T) {
 
 		s := &health.State{}
 
-		ch := s.Provider().Health().Watch(tt.Context(), health.Overall)
+		ch := s.Provider().Health().Watch(t.Context(), health.Overall)
 		go func() {
 			time.Sleep(time.Hour)
 			s.SetServingStatus(health.Serving)
@@ -1002,7 +1002,7 @@ func TestWaitSettledServing(t *testing.T) {
 		// wakes and sets the status to Serving.
 		synctest.Wait()
 
-		st, err := health.WaitSettled(tt.Context(), ch)
+		st, err := health.WaitSettled(t.Context(), ch)
 		t.Nil(err)
 		t.Equal(st, health.Serving)
 	})
