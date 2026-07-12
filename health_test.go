@@ -24,7 +24,7 @@ func TestMain(m *testing.M) {
 
 func TestStateZeroValue(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := &health.State{}
 	v := s.Provider()
@@ -39,7 +39,7 @@ func TestStateZeroValue(tt *testing.T) {
 
 func TestStateSetServingStatus(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := &health.State{}
 	v := s.Provider()
@@ -69,7 +69,7 @@ func TestStateSetServingStatus(tt *testing.T) {
 
 func TestStateClose(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := &health.State{}
 	v := s.Provider()
@@ -91,7 +91,7 @@ func TestStateClose(tt *testing.T) {
 
 func TestStateCheckUnknownService(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := &health.State{}
 	v := s.Provider()
@@ -101,7 +101,7 @@ func TestStateCheckUnknownService(tt *testing.T) {
 
 func TestStateWatchImmediate(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := &health.State{}
 	s.SetServingStatus(health.Serving)
@@ -117,7 +117,7 @@ func TestStateWatchImmediate(tt *testing.T) {
 
 func TestStateWatchChanges(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := &health.State{}
 
@@ -141,7 +141,7 @@ func TestStateWatchChanges(tt *testing.T) {
 
 func TestStateWatchConflation(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := &health.State{}
 
@@ -163,36 +163,36 @@ func TestStateWatchConflation(tt *testing.T) {
 	t.Greater(st.Transitions, uint64(1))
 }
 
-func TestStateWatchUnknownName(tt *testing.T) {
-	tt.Parallel()
-	synctest.Test(tt, func(t *testing.T) {
-		c := check.T(t).MustAll()
+func TestStateWatchUnknownName(t *testing.T) {
+	t.Parallel()
+	synctest.Test(t, func(tt *testing.T) {
+		t := check.Must(tt)
 
 		s := &health.State{}
-		ctx, cancel := context.WithCancel(t.Context())
+		ctx, cancel := context.WithCancel(tt.Context())
 
 		ch := s.Provider().Health().Watch(ctx, "unknown")
 		st := <-ch
-		c.Equal(st.ServingStatus, health.ServiceUnknown)
+		t.Equal(st.ServingStatus, health.ServiceUnknown)
 
 		// Inside synctest bubble time advances only when all goroutines
 		// are durably blocked, so this select is deterministic.
 		select {
 		case <-ch:
-			c.Fatal("channel should stay open")
+			t.Fatal("channel should stay open")
 		case <-time.After(time.Hour):
 		}
 
 		cancel()
 		synctest.Wait()
 		_, ok := <-ch
-		c.False(ok)
+		t.False(ok)
 	})
 }
 
 func TestStateCloseNotifiesWatchers(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := &health.State{}
 	ctx, cancel := context.WithCancel(baseCtx)
@@ -206,25 +206,25 @@ func TestStateCloseNotifiesWatchers(tt *testing.T) {
 	t.Equal(st.ServingStatus, health.NotServing)
 }
 
-func TestWatchEmptyContext(tt *testing.T) {
-	tt.Parallel()
-	synctest.Test(tt, func(t *testing.T) {
-		c := check.T(t).MustAll()
+func TestWatchEmptyContext(t *testing.T) {
+	t.Parallel()
+	synctest.Test(t, func(tt *testing.T) {
+		t := check.Must(tt)
 
 		s := &health.State{}
 		s.SetServingStatus(health.Serving)
 
-		ctx, cancel := context.WithCancel(t.Context())
+		ctx, cancel := context.WithCancel(tt.Context())
 		cancel()
 
 		ch := s.Provider().Health().Watch(ctx, health.Overall)
 		st, ok := <-ch
-		c.True(ok)
-		c.Equal(st.ServingStatus, health.Serving)
+		t.True(ok)
+		t.Equal(st.ServingStatus, health.Serving)
 
 		synctest.Wait()
 		_, ok = <-ch
-		c.False(ok)
+		t.False(ok)
 	})
 }
 
@@ -234,7 +234,7 @@ func TestWatchEmptyContext(tt *testing.T) {
 
 func TestNewStatesPanics(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt)
+	t := check.Must(tt)
 
 	t.PanicMatch(func() { health.NewStates() }, "at least one name")
 	t.PanicMatch(func() { health.NewStates(health.Overall) }, "cannot be empty")
@@ -244,7 +244,7 @@ func TestNewStatesPanics(tt *testing.T) {
 
 func TestStatesSetServingStatusPanics(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt)
+	t := check.Must(tt)
 
 	s := health.NewStates("db")
 	t.PanicMatch(func() { s.SetServingStatus("unknown", health.Serving) }, "unknown service")
@@ -252,7 +252,7 @@ func TestStatesSetServingStatusPanics(tt *testing.T) {
 
 func TestStatesAggregation(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := health.NewStates("a", "b")
 	v := s.Provider()
@@ -276,7 +276,7 @@ func TestStatesAggregation(tt *testing.T) {
 
 func TestStatesCoalescing(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := health.NewStates("a")
 	v := s.Provider()
@@ -293,7 +293,7 @@ func TestStatesCoalescing(tt *testing.T) {
 
 func TestStatesClose(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := health.NewStates("a", "b")
 	v := s.Provider()
@@ -314,7 +314,7 @@ func TestStatesClose(tt *testing.T) {
 
 func TestStatesWatch(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := health.NewStates("db", "cache")
 	v := s.Provider()
@@ -339,35 +339,35 @@ func TestStatesWatch(tt *testing.T) {
 	t.Equal(st.ServingStatus, health.Serving)
 }
 
-func TestStatesWatchUnknownName(tt *testing.T) {
-	tt.Parallel()
-	synctest.Test(tt, func(t *testing.T) {
-		c := check.T(t).MustAll()
+func TestStatesWatchUnknownName(t *testing.T) {
+	t.Parallel()
+	synctest.Test(t, func(tt *testing.T) {
+		t := check.Must(tt)
 
 		s := health.NewStates("db")
 		v := s.Provider()
-		ctx, cancel := context.WithCancel(t.Context())
+		ctx, cancel := context.WithCancel(tt.Context())
 
 		ch := v.Health().Watch(ctx, "unknown")
 		st := <-ch
-		c.Equal(st.ServingStatus, health.ServiceUnknown)
+		t.Equal(st.ServingStatus, health.ServiceUnknown)
 
 		select {
 		case <-ch:
-			c.Fatal("should stay open")
+			t.Fatal("should stay open")
 		case <-time.After(time.Hour):
 		}
 
 		cancel()
 		synctest.Wait()
 		_, ok := <-ch
-		c.False(ok)
+		t.False(ok)
 	})
 }
 
 func TestStatesTransitionsTracking(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := health.NewStates("a")
 	v := s.Provider()
@@ -385,7 +385,7 @@ func TestStatesTransitionsTracking(tt *testing.T) {
 
 func TestStatesCloseNotifiesWatchers(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := health.NewStates("db", "cache")
 	v := s.Provider()
@@ -414,7 +414,7 @@ func TestStatesCloseNotifiesWatchers(tt *testing.T) {
 
 func TestAlwaysServing(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	var as health.AlwaysServing
 	h := as.Health()
@@ -453,7 +453,7 @@ func newTestComponent() *testComponent {
 
 func TestAlwaysServingEmbedding(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	c := newTestComponent()
 	h := c.Health()
@@ -464,7 +464,7 @@ func TestAlwaysServingEmbedding(tt *testing.T) {
 // leaves a nil interface — first use panics, which is loud enough.
 func TestNilHealthProviderPanics(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt)
+	t := check.Must(tt)
 
 	var c testComponent
 	t.Panic(func() { _ = c.Health() })
@@ -476,7 +476,7 @@ func TestNilHealthProviderPanics(tt *testing.T) {
 
 func TestNewAggregatePanics(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt)
+	t := check.Must(tt)
 
 	t.PanicMatch(func() { health.NewAggregate(nil) }, "at least one child")
 	t.PanicMatch(func() { health.NewAggregate(make(map[health.ServiceName]health.Health)) }, "at least one child")
@@ -496,7 +496,7 @@ func TestNewAggregatePanics(tt *testing.T) {
 
 func TestNewAggregateMaterialized(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	db := &health.State{}
 	cache := &health.State{}
@@ -525,7 +525,7 @@ func TestNewAggregateMaterialized(tt *testing.T) {
 
 func TestNewAggregateMaterializedTransitions(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	db := &health.State{}
 	cache := &health.State{}
@@ -552,7 +552,7 @@ func TestNewAggregateMaterializedTransitions(tt *testing.T) {
 
 func TestNewAggregateMaterializedSeeding(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	db := &health.State{}
 	db.SetServingStatus(health.Serving)
@@ -569,7 +569,7 @@ func TestNewAggregateMaterializedSeeding(tt *testing.T) {
 
 func TestNewAggregateSubPopulation(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	db := &health.State{}
 	agg := health.NewAggregate(map[health.ServiceName]health.Health{
@@ -584,7 +584,7 @@ func TestNewAggregateSubPopulation(tt *testing.T) {
 
 func TestNewAggregateCheckMember(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	db := &health.State{}
 	agg := health.NewAggregate(map[health.ServiceName]health.Health{
@@ -600,7 +600,7 @@ func TestNewAggregateCheckMember(tt *testing.T) {
 
 func TestNewAggregateWatchMember(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	db := &health.State{}
 	agg := health.NewAggregate(map[health.ServiceName]health.Health{
@@ -622,7 +622,7 @@ func TestNewAggregateWatchMember(tt *testing.T) {
 
 func TestNewAggregateWatchUnknownName(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	db := &health.State{}
 	agg := health.NewAggregate(map[health.ServiceName]health.Health{
@@ -640,7 +640,7 @@ func TestNewAggregateWatchUnknownName(tt *testing.T) {
 
 func TestNewAggregateNilChild(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt)
+	t := check.Must(tt)
 
 	t.PanicMatch(func() {
 		health.NewAggregate(map[health.ServiceName]health.Health{
@@ -655,7 +655,7 @@ func TestNewAggregateNilChild(tt *testing.T) {
 
 func TestNewAggregateTwoLevelTransitions(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	db := &health.State{}
 	cache := &health.State{}
@@ -701,7 +701,7 @@ func TestNewAggregateTwoLevelTransitions(tt *testing.T) {
 
 func TestNewAggregateMaterializedFoldCoalescing(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	a := &health.State{}
 	b := &health.State{}
@@ -735,31 +735,31 @@ func TestNewAggregateMaterializedFoldCoalescing(tt *testing.T) {
 // Watch channels stay open after Close
 // ---------------------------------------------------------------------------
 
-func TestStateWatchStaysOpenAfterClose(tt *testing.T) {
-	tt.Parallel()
-	synctest.Test(tt, func(t *testing.T) {
-		c := check.T(t).MustAll()
+func TestStateWatchStaysOpenAfterClose(t *testing.T) {
+	t.Parallel()
+	synctest.Test(t, func(tt *testing.T) {
+		t := check.Must(tt)
 
 		s := &health.State{}
 		s.SetServingStatus(health.Serving)
-		ctx, cancel := context.WithCancel(t.Context())
+		ctx, cancel := context.WithCancel(tt.Context())
 
 		ch := s.Provider().Health().Watch(ctx, health.Overall)
 		st := <-ch
-		c.Equal(st.ServingStatus, health.Serving)
+		t.Equal(st.ServingStatus, health.Serving)
 
 		// Close sends NotServing but does not close the channel.
 		s.Close()
 		st = <-ch
-		c.Equal(st.ServingStatus, health.NotServing)
+		t.Equal(st.ServingStatus, health.NotServing)
 
 		// Channel stays open after Close (no more events, but not closed).
 		select {
 		case _, ok := <-ch:
 			if !ok {
-				c.Fatal("channel should stay open after Close")
+				t.Fatal("channel should stay open after Close")
 			}
-			c.Fatal("unexpected event after Close")
+			t.Fatal("unexpected event after Close")
 		case <-time.After(time.Hour):
 		}
 
@@ -767,41 +767,41 @@ func TestStateWatchStaysOpenAfterClose(tt *testing.T) {
 		cancel()
 		synctest.Wait()
 		_, ok := <-ch
-		c.False(ok)
+		t.False(ok)
 	})
 }
 
-func TestStatesWatchStaysOpenAfterClose(tt *testing.T) {
-	tt.Parallel()
-	synctest.Test(tt, func(t *testing.T) {
-		c := check.T(t).MustAll()
+func TestStatesWatchStaysOpenAfterClose(t *testing.T) {
+	t.Parallel()
+	synctest.Test(t, func(tt *testing.T) {
+		t := check.Must(tt)
 
 		s := health.NewStates("a")
 		s.SetServingStatus("a", health.Serving)
-		ctx, cancel := context.WithCancel(t.Context())
+		ctx, cancel := context.WithCancel(tt.Context())
 
 		ch := s.Provider().Health().Watch(ctx, health.Overall)
 		st := <-ch
-		c.Equal(st.ServingStatus, health.Serving)
+		t.Equal(st.ServingStatus, health.Serving)
 
 		s.Close()
 		st = <-ch
-		c.Equal(st.ServingStatus, health.NotServing)
+		t.Equal(st.ServingStatus, health.NotServing)
 
 		// Channel stays open after Close.
 		select {
 		case _, ok := <-ch:
 			if !ok {
-				c.Fatal("channel should stay open after Close")
+				t.Fatal("channel should stay open after Close")
 			}
-			c.Fatal("unexpected event after Close")
+			t.Fatal("unexpected event after Close")
 		case <-time.After(time.Hour):
 		}
 
 		cancel()
 		synctest.Wait()
 		_, ok := <-ch
-		c.False(ok)
+		t.False(ok)
 	})
 }
 
@@ -854,7 +854,7 @@ func TestNewAggregateMaterializedConcurrent(tt *testing.T) {
 
 func TestNewAggregateMaterializedClosePropagation(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	db := &health.State{}
 	agg := health.NewAggregate(map[health.ServiceName]health.Health{
@@ -904,7 +904,7 @@ func (foreignHealth) Watch(ctx context.Context, _ health.ServiceName) <-chan hea
 
 func TestNewAggregateForeignChildPanics(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt)
+	t := check.Must(tt)
 
 	t.PanicMatch(func() {
 		health.NewAggregate(map[health.ServiceName]health.Health{
@@ -916,7 +916,7 @@ func TestNewAggregateForeignChildPanics(tt *testing.T) {
 // An AlwaysServing member must not break the aggregate's materialization.
 func TestNewAggregateAlwaysServingMember(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	db := &health.State{}
 	var as health.AlwaysServing
@@ -945,7 +945,7 @@ func TestNewAggregateAlwaysServingMember(tt *testing.T) {
 
 func TestFlattenSingleLevel(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := health.NewStates("a", "b")
 	s.SetServingStatus("a", health.Serving)
@@ -960,7 +960,7 @@ func TestFlattenSingleLevel(tt *testing.T) {
 
 func TestFlattenTwoLevel(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	db := &health.State{}
 	db.SetServingStatus(health.Serving)
@@ -985,14 +985,14 @@ func TestFlattenTwoLevel(tt *testing.T) {
 // WaitSettled
 // ---------------------------------------------------------------------------
 
-func TestWaitSettledServing(tt *testing.T) {
-	tt.Parallel()
-	synctest.Test(tt, func(t *testing.T) {
-		c := check.T(t).MustAll()
+func TestWaitSettledServing(t *testing.T) {
+	t.Parallel()
+	synctest.Test(t, func(tt *testing.T) {
+		t := check.Must(tt)
 
 		s := &health.State{}
 
-		ch := s.Provider().Health().Watch(t.Context(), health.Overall)
+		ch := s.Provider().Health().Watch(tt.Context(), health.Overall)
 		go func() {
 			time.Sleep(time.Hour)
 			s.SetServingStatus(health.Serving)
@@ -1002,15 +1002,15 @@ func TestWaitSettledServing(tt *testing.T) {
 		// wakes and sets the status to Serving.
 		synctest.Wait()
 
-		st, err := health.WaitSettled(t.Context(), ch)
-		c.Nil(err)
-		c.Equal(st, health.Serving)
+		st, err := health.WaitSettled(tt.Context(), ch)
+		t.Nil(err)
+		t.Equal(st, health.Serving)
 	})
 }
 
 func TestWaitSettledNotServing(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := &health.State{}
 	s.SetServingStatus(health.NotServing)
@@ -1026,7 +1026,7 @@ func TestWaitSettledNotServing(tt *testing.T) {
 
 func TestWaitSettledServiceUnknown(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := &health.State{}
 	ctx, cancel := context.WithCancel(baseCtx)
@@ -1040,7 +1040,7 @@ func TestWaitSettledServiceUnknown(tt *testing.T) {
 
 func TestWaitSettledContextCancelled(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	ch := make(chan health.Status)
 	ctx, cancel := context.WithCancel(baseCtx)
@@ -1053,7 +1053,7 @@ func TestWaitSettledContextCancelled(tt *testing.T) {
 
 func TestWaitSettledWatchClosed(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	ch := make(chan health.Status)
 	close(ch)
@@ -1068,7 +1068,7 @@ func TestWaitSettledWatchClosed(tt *testing.T) {
 
 func TestStateProviderTypeAssertion(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := &health.State{}
 	prov := s.Provider()
@@ -1085,7 +1085,7 @@ func TestStateProviderTypeAssertion(tt *testing.T) {
 
 func TestStatesProviderTypeAssertion(tt *testing.T) {
 	tt.Parallel()
-	t := check.T(tt).MustAll()
+	t := check.Must(tt)
 
 	s := health.NewStates("a")
 	prov := s.Provider()
