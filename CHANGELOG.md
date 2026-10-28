@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-10-28
+
+### 🔔 Changed
+
+- Require Go 1.26 by @powerman in [110ed78]
+
+### 📦️ Dependencies
+
+- **(deps)** Upgrade go and golangci-lint by @powerman in [cfec8ae]
+- **(deps)** Upgrade go modules by @powerman in [8b3195a]
+- **(deps)** Upgrade go and golangci-lint by @powerman in [ea6964e]
+- **(deps)** Mise up by @powerman in [1e596d2]
+
+[0.2.0]: https://github.com/powerman/health/compare/v0.1.1..v0.2.0
+[cfec8ae]: https://github.com/powerman/health/commit/cfec8ae6d2342be9940f471a5afdf9c4a751b9d4
+[8b3195a]: https://github.com/powerman/health/commit/8b3195af88b84369ef598b02b0a6a6e3c8625e3c
+[ea6964e]: https://github.com/powerman/health/commit/ea6964ee08e9afc20bdc23f84dd75fd967129036
+[110ed78]: https://github.com/powerman/health/commit/110ed785bc0e6d8ed8f48f873d6c9c73bb1a876c
+[1e596d2]: https://github.com/powerman/health/commit/1e596d223e2a9ff832023ebe0e04ee6057d11205
+
 ## [0.1.1] - 2026-07-12
 
 [0.1.1]: https://github.com/powerman/health/compare/%40%7B10year%7D..v0.1.1
